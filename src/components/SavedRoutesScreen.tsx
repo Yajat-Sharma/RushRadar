@@ -1,19 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Edit, Plus, Clock, Users } from 'lucide-react';
+import { ArrowLeft, Edit, Plus, Clock, Users, Navigation } from 'lucide-react';
 import { Screen } from '../App';
 import { SAVED_ROUTES_INDIA } from '../data/indiaTransitData';
 import { IconButton } from './ui/IconButton';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Badge } from './ui/Badge';
+import { useAppContext } from '../contexts/AppContext';
+import { useToast } from './ui/Toast';
 
 interface SavedRoutesScreenProps {
   onNavigate: (screen: Screen) => void;
 }
 
 const SavedRoutesScreen: React.FC<SavedRoutesScreenProps> = ({ onNavigate }) => {
-  const savedRoutes = SAVED_ROUTES_INDIA;
+  const { setFromLocation, setToLocation, setGeneratedRoutes } = useAppContext();
+  const { toast } = useToast();
+  const [savedRoutes] = useState(SAVED_ROUTES_INDIA);
 
   const getCrowdColor = (level: number) => {
     if (level <= 30) return 'text-success-green';
@@ -27,6 +31,20 @@ const SavedRoutesScreen: React.FC<SavedRoutesScreenProps> = ({ onNavigate }) => 
     return 'stroke-danger-red';
   };
 
+  const handleGoRoute = (route: typeof SAVED_ROUTES_INDIA[0]) => {
+    setFromLocation(route.from);
+    setToLocation(route.to);
+    // Clear old routes so the screen re-generates
+    setGeneratedRoutes([]);
+    toast.info(`Loading route: ${route.from} → ${route.to}`);
+    setTimeout(() => onNavigate('home'), 400);
+  };
+
+  const handleAddRoute = () => {
+    toast.info('Go to Search to find and save a new route');
+    setTimeout(() => onNavigate('home'), 600);
+  };
+
   return (
     <div className="h-full bg-[#F5F7FA] flex flex-col relative overflow-hidden">
       <div className="absolute top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-md px-5 py-4 pt-10 flex items-center justify-between border-b border-white/40">
@@ -34,7 +52,7 @@ const SavedRoutesScreen: React.FC<SavedRoutesScreenProps> = ({ onNavigate }) => 
           <ArrowLeft size={22} className="text-neutral-dark" />
         </IconButton>
         <h1 className="text-[17px] font-bold text-neutral-dark tracking-tight">Saved Routes</h1>
-        <IconButton variant="secondary" size="md">
+        <IconButton variant="secondary" size="md" onClick={() => toast.info('Edit mode coming soon')}>
           <Edit size={18} className="text-primary-blue" />
         </IconButton>
       </div>
@@ -44,32 +62,52 @@ const SavedRoutesScreen: React.FC<SavedRoutesScreenProps> = ({ onNavigate }) => 
         <div className="px-5 mb-6">
           <h2 className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-3 ml-1">Quick Access</h2>
           <div className="grid grid-cols-2 gap-3">
-            <Card className="!p-4 bg-white/80 shadow-sm border border-neutral-100 flex flex-col justify-between" interactive>
+            <Card
+              className="!p-4 bg-white/80 shadow-sm border border-neutral-100 flex flex-col justify-between"
+              interactive
+              onClick={() => {
+                setFromLocation('Andheri (W)');
+                setToLocation('Churchgate');
+                setGeneratedRoutes([]);
+                toast.info('Opening: Andheri → Churchgate');
+                setTimeout(() => onNavigate('home'), 400);
+              }}
+            >
               <div className="flex items-center space-x-1.5 mb-3 opacity-80">
                 <span className="text-lg">🏠</span>
                 <span className="text-xs font-bold text-neutral-300">→</span>
                 <span className="text-lg">🏢</span>
               </div>
               <div>
-                <p className="font-bold text-neutral-dark text-sm leading-tight mb-1">Andheri <br/>to Churchgate</p>
+                <p className="font-bold text-neutral-dark text-sm leading-tight mb-1">Andheri <br />to Churchgate</p>
                 <div className="flex items-center space-x-1 mb-2">
-                  <div className="w-2 h-2 rounded-full bg-warning-orange"></div>
+                  <div className="w-2 h-2 rounded-full bg-warning-orange" />
                   <p className="text-warning-orange text-[10px] font-bold">78% crowded</p>
                 </div>
                 <Badge variant="neutral" size="sm">Ladies Coach Open</Badge>
               </div>
             </Card>
 
-            <Card className="!p-4 bg-white/80 shadow-sm border border-neutral-100 flex flex-col justify-between" interactive>
+            <Card
+              className="!p-4 bg-white/80 shadow-sm border border-neutral-100 flex flex-col justify-between"
+              interactive
+              onClick={() => {
+                setFromLocation('Churchgate');
+                setToLocation('Andheri (W)');
+                setGeneratedRoutes([]);
+                toast.info('Opening: Churchgate → Andheri');
+                setTimeout(() => onNavigate('home'), 400);
+              }}
+            >
               <div className="flex items-center space-x-1.5 mb-3 opacity-80">
                 <span className="text-lg">🏢</span>
                 <span className="text-xs font-bold text-neutral-300">→</span>
                 <span className="text-lg">🏠</span>
               </div>
               <div>
-                <p className="font-bold text-neutral-dark text-sm leading-tight mb-1">Churchgate <br/>to Andheri</p>
+                <p className="font-bold text-neutral-dark text-sm leading-tight mb-1">Churchgate <br />to Andheri</p>
                 <div className="flex items-center space-x-1 mb-2">
-                  <div className="w-2 h-2 rounded-full bg-danger-red"></div>
+                  <div className="w-2 h-2 rounded-full bg-danger-red" />
                   <p className="text-danger-red text-[10px] font-bold">Peak (92%)</p>
                 </div>
                 <Badge variant="warning" size="sm">First Class Rec.</Badge>
@@ -83,12 +121,11 @@ const SavedRoutesScreen: React.FC<SavedRoutesScreenProps> = ({ onNavigate }) => 
           <h2 className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-3 ml-1">All Saved Routes</h2>
           <div className="space-y-4">
             {savedRoutes.map((route) => (
-              <Card key={route.id} className="!p-4 border border-neutral-100 shadow-sm relative overflow-hidden" interactive>
+              <Card key={route.id} className="!p-4 border border-neutral-100 shadow-sm relative overflow-hidden" interactive onClick={() => handleGoRoute(route)}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1 pr-3">
                     <h3 className="font-black text-neutral-dark text-[15px]">{route.name}</h3>
                     <p className="text-neutral-medium text-[11px] font-medium mt-0.5">{route.from} <span className="mx-1">→</span> {route.to}</p>
-                    
                     <div className="flex items-center space-x-3 mt-3">
                       <div className="flex items-center space-x-1.5 bg-neutral-50 px-2 py-1 rounded-md border border-neutral-100">
                         <Clock size={10} className="text-neutral-500" />
@@ -99,8 +136,6 @@ const SavedRoutesScreen: React.FC<SavedRoutesScreenProps> = ({ onNavigate }) => 
                         <span className="text-[10px] font-bold text-neutral-600">{route.avgCrowd}% avg crowd</span>
                       </div>
                     </div>
-                    
-                    {/* Indian-specific features */}
                     {route.specialFeatures && route.specialFeatures.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-3">
                         {route.specialFeatures.map((feature, i) => (
@@ -129,9 +164,13 @@ const SavedRoutesScreen: React.FC<SavedRoutesScreenProps> = ({ onNavigate }) => 
                         </span>
                       </div>
                     </div>
-
-                    <Button variant="primary" size="sm" className="w-full text-[11px] py-1 shadow-sm">
-                      Go
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="w-full text-[11px] py-1 shadow-sm"
+                      onClick={(e) => { e.stopPropagation(); handleGoRoute(route); }}
+                    >
+                      <Navigation size={11} className="mr-1" /> Go
                     </Button>
                   </div>
                 </div>
@@ -142,9 +181,10 @@ const SavedRoutesScreen: React.FC<SavedRoutesScreenProps> = ({ onNavigate }) => 
       </div>
 
       {/* Add Route FAB */}
-      <motion.button 
+      <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
+        onClick={handleAddRoute}
         className="absolute bottom-28 right-5 w-14 h-14 bg-neutral-dark rounded-2xl shadow-xl flex items-center justify-center z-30"
       >
         <Plus size={24} className="text-white" />

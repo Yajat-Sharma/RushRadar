@@ -13,6 +13,7 @@ import LoginScreen from './components/auth/LoginScreen';
 import SignupScreen from './components/auth/SignupScreen';
 import BottomNavigation from './components/BottomNavigation';
 import { AppProvider, useAppContext } from './contexts/AppContext';
+import { ToastProvider } from './components/ui/Toast';
 
 export type Screen = 'splash' | 'onboarding' | 'login' | 'signup' | 'home' | 'routes' | 'map' | 'analytics' | 'notifications' | 'saved' | 'profile';
 
@@ -130,7 +131,9 @@ function AppContent() {
 function App() {
   return (
     <AppProvider>
-      <AppContent />
+      <ToastProvider>
+        <AppContent />
+      </ToastProvider>
     </AppProvider>
   );
 }
