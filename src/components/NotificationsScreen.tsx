@@ -33,8 +33,8 @@ const NotificationsScreen: React.FC<NotificationsScreenProps> = ({ onNavigate })
     clearNotificationCount();
   };
 
-  const handleDismiss = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+  const handleDismiss = (id: number | string) => {
+    setNotifications(prev => prev.filter(n => String(n.id) !== String(id)));
     toast.success('Notification dismissed');
   };
 
