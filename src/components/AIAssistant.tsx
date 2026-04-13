@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X, Send, Clock, TrendingUp, MapPin, AlertTriangle } from 'lucide-react';
-import { useAppContext } from '../../contexts/AppContext';
+import { useAppContext } from '../contexts/AppContext';
 
 interface AIAssistantProps {
   onNavigate: (screen: any) => void;
