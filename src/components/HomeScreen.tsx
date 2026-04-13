@@ -10,6 +10,7 @@ import { Button } from './ui/Button';
 import { LocationInput } from './ui/LocationInput';
 import { generateMockRoutes } from '../utils/routeGenerator';
 import { IconButton } from './ui/IconButton';
+import { AIAssistant } from './AIAssistant';
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -203,6 +204,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
                         {station.specialFeatures[0]}
                       </span>
                     )}
+                    {/* Ladies Coach badge */}
+                    {station.specialFeatures?.includes('Ladies Coach') && (
+                      <span className="text-[9px] font-bold text-pink-600 bg-pink-50 border border-pink-200 px-1.5 py-0.5 rounded-full">🩷 Ladies Coach</span>
+                    )}
                   </div>
                 </div>
 
@@ -230,6 +235,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
           </div>
         </div>
       </div>
+
+      {/* AI Commute Assistant FAB */}
+      <AIAssistant onNavigate={onNavigate} />
     </div>
   );
 };

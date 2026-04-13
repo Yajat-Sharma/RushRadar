@@ -1,4 +1,10 @@
 // India-specific transit data for realistic examples
+export interface CoachData {
+  num: number;
+  type: 'ladies' | 'first' | 'general';
+  crowd: number;
+}
+
 export interface IndiaRoute {
   id: number;
   time: string;
@@ -12,6 +18,10 @@ export interface IndiaRoute {
   specialFeatures?: string[];
   platform?: string;
   coachSuggestion?: string;
+  delay?: number;          // minutes delay (0 = on time)
+  localType?: 'fast' | 'slow' | 'express' | 'bus' | 'metro';
+  hasLadiesCoach?: boolean;
+  coachData?: CoachData[];
 }
 
 export interface IndiaStation {

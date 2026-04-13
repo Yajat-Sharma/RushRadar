@@ -15,6 +15,7 @@ export interface AppSettings {
   peakHourAlerts: boolean;
   locationAccess: boolean;
   compactView: boolean;
+  darkMode: boolean;
 }
 
 const defaultSettings: AppSettings = {
@@ -22,6 +23,7 @@ const defaultSettings: AppSettings = {
   peakHourAlerts: true,
   locationAccess: true,
   compactView: false,
+  darkMode: false,
 };
 
 interface AppState {

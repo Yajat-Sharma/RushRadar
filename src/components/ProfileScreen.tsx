@@ -140,6 +140,12 @@ const ProfileScreen: React.FC<ProfileScreenProps> = ({ onNavigate }) => {
                   subtitle: 'Denser station list',
                   setting: 'compactView' as const,
                 },
+                {
+                  icon: Globe,
+                  title: 'Dark Mode',
+                  subtitle: 'Easy on the eyes at night',
+                  setting: 'darkMode' as const,
+                },
               ].map((item, i, arr) => {
                 const Icon = item.icon;
                 return (

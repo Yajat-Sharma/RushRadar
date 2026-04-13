@@ -86,9 +86,9 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
+    <div className={`min-h-screen bg-[#F5F7FA] dark:bg-gray-950 flex items-center justify-center ${state.settings.darkMode ? 'dark' : ''}`}>
       {/* Mobile Frame Simulation (if opened on Desktop) */}
-      <div className="w-full max-w-sm h-[100dvh] sm:h-[844px] sm:rounded-[40px] sm:border-[8px] border-neutral-800 bg-neutral-card relative overflow-hidden shadow-2xl flex flex-col">
+      <div className="w-full max-w-sm h-[100dvh] sm:h-[844px] sm:rounded-[40px] sm:border-[8px] border-neutral-800 bg-neutral-card dark:bg-gray-900 relative overflow-hidden shadow-2xl flex flex-col">
         <div className="flex-1 overflow-y-auto relative no-scrollbar pb-24">
           <AnimatePresence mode="wait">
             <motion.div
