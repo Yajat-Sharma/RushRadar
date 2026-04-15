@@ -11,11 +11,24 @@ import SavedRoutesScreen from './components/SavedRoutesScreen';
 import ProfileScreen from './components/ProfileScreen';
 import LoginScreen from './components/auth/LoginScreen';
 import SignupScreen from './components/auth/SignupScreen';
+import ForgotPasswordScreen from './components/auth/ForgotPasswordScreen';
 import BottomNavigation from './components/BottomNavigation';
 import { AppProvider, useAppContext } from './contexts/AppContext';
 import { ToastProvider } from './components/ui/Toast';
 
-export type Screen = 'splash' | 'onboarding' | 'login' | 'signup' | 'home' | 'routes' | 'map' | 'analytics' | 'notifications' | 'saved' | 'profile';
+export type Screen =
+  | 'splash'
+  | 'onboarding'
+  | 'login'
+  | 'signup'
+  | 'forgot-password'
+  | 'home'
+  | 'routes'
+  | 'map'
+  | 'analytics'
+  | 'notifications'
+  | 'saved'
+  | 'profile';
 
 const pageVariants = {
   initial: { opacity: 0, scale: 0.98, y: 10 },
@@ -36,7 +49,7 @@ function AppContent() {
 
   // Monitor auth state to force login screen
   useEffect(() => {
-    if (['splash', 'onboarding', 'login', 'signup'].includes(currentScreen)) return;
+    if (['splash', 'onboarding', 'login', 'signup', 'forgot-password'].includes(currentScreen)) return;
     if (!state.user && !state.isGuest) {
       setCurrentScreen('login');
       setShowBottomNav(false);
@@ -57,7 +70,6 @@ function AppContent() {
       case 'splash':
         return <SplashScreen key="splash" onComplete={() => handleScreenChange('onboarding')} />;
       case 'onboarding':
-        // If already logged in from previous session, skip onboarding and auth
         return <OnboardingScreen key="onboarding" onComplete={() => {
           if (state.user || state.isGuest) handleScreenChange('home');
           else handleScreenChange('login');
@@ -66,6 +78,8 @@ function AppContent() {
         return <LoginScreen key="login" onNavigate={handleScreenChange} />;
       case 'signup':
         return <SignupScreen key="signup" onNavigate={handleScreenChange} />;
+      case 'forgot-password':
+        return <ForgotPasswordScreen key="forgot-password" onNavigate={handleScreenChange} />;
       case 'home':
         return <HomeScreen key="home" onNavigate={handleScreenChange} />;
       case 'routes':
@@ -86,9 +100,9 @@ function AppContent() {
   };
 
   return (
-    <div className={`min-h-screen bg-[#F5F7FA] dark:bg-gray-950 flex items-center justify-center ${state.settings.darkMode ? 'dark' : ''}`}>
-      {/* Mobile Frame Simulation (if opened on Desktop) */}
-      <div className="w-full max-w-sm h-[100dvh] sm:h-[844px] sm:rounded-[40px] sm:border-[8px] border-neutral-800 bg-neutral-card dark:bg-gray-900 relative overflow-hidden shadow-2xl flex flex-col">
+    <div className="min-h-screen bg-slate-200 dark:bg-gray-950 flex items-center justify-center transition-colors duration-300">
+      {/* Mobile Frame Simulation on Desktop */}
+      <div className="w-full max-w-sm h-[100dvh] sm:h-[844px] sm:rounded-[40px] sm:border-[8px] border-neutral-800 bg-white dark:bg-gray-900 relative overflow-hidden shadow-2xl flex flex-col transition-colors duration-300">
         <div className="flex-1 overflow-y-auto relative no-scrollbar pb-24">
           <AnimatePresence mode="wait">
             <motion.div
@@ -104,10 +118,10 @@ function AppContent() {
             </motion.div>
           </AnimatePresence>
         </div>
-        
+
         <AnimatePresence>
           {showBottomNav && (
-            <motion.div 
+            <motion.div
               initial={{ y: 100 }}
               animate={{ y: 0 }}
               exit={{ y: 100 }}
@@ -115,9 +129,9 @@ function AppContent() {
               className="absolute bottom-0 left-0 right-0 z-50 pointer-events-none"
             >
               <div className="pointer-events-auto">
-                <BottomNavigation 
-                  currentScreen={currentScreen} 
-                  onNavigate={handleScreenChange} 
+                <BottomNavigation
+                  currentScreen={currentScreen}
+                  onNavigate={handleScreenChange}
                 />
               </div>
             </motion.div>

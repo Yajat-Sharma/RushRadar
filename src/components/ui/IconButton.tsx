@@ -18,9 +18,9 @@ export const IconButton = ({
 }: IconButtonProps) => {
   const variants = {
     primary: 'bg-primary-blue text-white shadow-md hover:bg-primary-blue-dark hover:shadow-lg',
-    secondary: 'bg-white text-neutral-dark border-2 border-neutral-light hover:bg-neutral-50 shadow-sm',
-    ghost: 'bg-transparent text-neutral-medium hover:bg-neutral-light hover:text-neutral-dark',
-    glass: 'bg-white/70 backdrop-blur-md text-neutral-dark border border-white/50 shadow-sm hover:bg-white',
+    secondary: 'bg-white dark:bg-gray-800 text-neutral-dark dark:text-white border border-neutral-200 dark:border-gray-700 hover:bg-neutral-50 dark:hover:bg-gray-700 shadow-sm',
+    ghost: 'bg-transparent text-neutral-medium dark:text-gray-400 hover:bg-neutral-100 dark:hover:bg-gray-800 hover:text-neutral-dark dark:hover:text-white',
+    glass: 'bg-white/70 dark:bg-gray-800/70 backdrop-blur-md text-neutral-dark dark:text-white border border-white/50 dark:border-gray-600 shadow-sm hover:bg-white dark:hover:bg-gray-700',
   };
 
   const sizes = {
@@ -32,8 +32,8 @@ export const IconButton = ({
   return (
     <motion.button
       whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className={`inline-flex items-center justify-center ${isRounded ? 'rounded-full' : 'rounded-xl'} outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-1 transition-colors ${variants[variant]} ${sizes[size]} ${className}`}
+      whileTap={{ scale: 0.93 }}
+      className={`inline-flex items-center justify-center ${isRounded ? 'rounded-full' : 'rounded-xl'} outline-none focus:ring-2 focus:ring-primary-blue focus:ring-offset-1 dark:focus:ring-offset-gray-900 transition-colors ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
       {children}

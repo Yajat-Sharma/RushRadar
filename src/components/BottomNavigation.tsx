@@ -18,36 +18,45 @@ const BottomNavigation: React.FC<BottomNavigationProps> = ({ currentScreen, onNa
   ];
 
   return (
-    <div className="px-6 pb-6 pt-2">
-      <div className="bg-white/80 backdrop-blur-xl border border-white/40 shadow-glass rounded-[32px] px-2 py-2 flex justify-between items-center relative overflow-hidden">
+    <div className="px-4 pb-5 pt-2">
+      <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-neutral-200/50 dark:border-gray-700/50 shadow-xl rounded-[28px] px-2 py-2 flex justify-between items-center relative overflow-hidden transition-colors duration-200">
+        {/* Subtle top border highlight */}
+        <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-white/60 dark:via-gray-600/60 to-transparent" />
+
         {tabs.map((tab) => {
-          const isActive = currentScreen === tab.id || 
+          const isActive = currentScreen === tab.id ||
             (tab.id === 'routes' && currentScreen === 'analytics');
-          
+
           return (
             <motion.button
               key={tab.id}
               onClick={() => onNavigate(tab.id as Screen)}
-              className="relative p-3 rounded-2xl flex flex-col items-center justify-center min-w-[60px] outline-none"
-              whileTap={{ scale: 0.9 }}
+              className="relative p-3 rounded-2xl flex flex-col items-center justify-center min-w-[58px] outline-none"
+              whileTap={{ scale: 0.88 }}
             >
               {isActive && (
                 <motion.div
-                  layoutId="bubble"
-                  className="absolute inset-0 bg-primary-blue-light/15 rounded-2xl"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  layoutId="navBubble"
+                  className="absolute inset-0 bg-primary-blue/12 dark:bg-primary-blue/20 rounded-2xl"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.55 }}
                 />
               )}
-              <tab.icon 
-                size={22} 
-                strokeWidth={isActive ? 2.5 : 2}
-                className={`z-10 transition-colors ${isActive ? 'text-primary-blue' : 'text-neutral-medium'}`} 
+              <tab.icon
+                size={22}
+                strokeWidth={isActive ? 2.5 : 1.8}
+                className={`z-10 transition-colors duration-200 ${
+                  isActive
+                    ? 'text-primary-blue'
+                    : 'text-neutral-400 dark:text-gray-500'
+                }`}
               />
-              <span className={`text-[10px] font-semibold mt-1 z-10 transition-colors ${isActive ? 'text-primary-blue' : 'text-neutral-medium'}`}>
+              <span className={`text-[10px] font-bold mt-0.5 z-10 tracking-tight transition-colors duration-200 ${
+                isActive ? 'text-primary-blue' : 'text-neutral-400 dark:text-gray-500'
+              }`}>
                 {tab.label}
               </span>
             </motion.button>
-          )
+          );
         })}
       </div>
     </div>

@@ -57,21 +57,21 @@ const LiveMapScreen: React.FC<LiveMapScreenProps> = ({ onNavigate }) => {
   return (
     <div className="h-full bg-neutral-card flex flex-col relative overflow-hidden">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-[1000] bg-white/80 backdrop-blur-md px-5 py-4 pt-10 shadow-sm border-b border-white/40">
+      <div className="absolute top-0 left-0 right-0 z-[1000] bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-5 py-4 pt-10 shadow-sm border-b border-neutral-100/50 dark:border-gray-800/50 transition-colors">
         <div className="flex items-center justify-between">
           <IconButton variant="ghost" onClick={() => onNavigate('home')}>
-            <ArrowLeft size={22} className="text-neutral-dark" />
+            <ArrowLeft size={22} className="text-neutral-dark dark:text-white" />
           </IconButton>
-          <h1 className="text-[17px] font-bold text-neutral-dark tracking-tight">Live Crowd Map</h1>
+          <h1 className="text-[17px] font-black text-neutral-dark dark:text-white tracking-tight">Live Crowd Map</h1>
           <IconButton variant="secondary" onClick={() => setShowLayers(!showLayers)}>
-            <Layers size={18} className="text-neutral-dark" />
+            <Layers size={18} className="text-neutral-dark dark:text-white" />
           </IconButton>
         </div>
       </div>
 
       {/* City Selector */}
       <div className="absolute top-24 left-4 z-[1000]">
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg p-1.5 border border-white/50">
+        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-lg p-1.5 border border-neutral-200/50 dark:border-gray-700/50">
           <div className="flex space-x-1">
             {cities.map((city) => (
               <button
@@ -79,8 +79,8 @@ const LiveMapScreen: React.FC<LiveMapScreenProps> = ({ onNavigate }) => {
                 onClick={() => setSelectedCity(city.id)}
                 className={`px-3 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
                   selectedCity === city.id
-                    ? 'bg-neutral-dark text-white shadow-sm'
-                    : 'text-neutral-medium hover:bg-neutral-light'
+                    ? 'bg-primary-blue text-white shadow-sm'
+                    : 'text-neutral-medium dark:text-gray-400 hover:bg-neutral-100 dark:hover:bg-gray-800'
                 }`}
               >
                 <span className="mr-1.5">{city.icon}</span>
@@ -152,10 +152,10 @@ const LiveMapScreen: React.FC<LiveMapScreenProps> = ({ onNavigate }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="absolute top-24 right-4 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl p-4 z-[1000] min-w-[220px] border border-white/50"
+            className="absolute top-24 right-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-xl p-4 z-[1000] min-w-[220px] border border-neutral-200/50 dark:border-gray-700/50"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-neutral-dark text-[15px]">Map Layers</h3>
+              <h3 className="font-bold text-neutral-dark dark:text-white text-[15px]">Map Layers</h3>
               <IconButton variant="ghost" size="sm" onClick={() => setShowLayers(false)}>
                 <span className="text-lg leading-none">×</span>
               </IconButton>
@@ -172,7 +172,7 @@ const LiveMapScreen: React.FC<LiveMapScreenProps> = ({ onNavigate }) => {
                   <div key={key} className="flex items-center justify-between group cursor-pointer" onClick={() => toggleLayer(key as keyof typeof mapLayers)}>
                     <div className="flex items-center space-x-3">
                       <span className="text-[17px] bg-neutral-50 w-8 h-8 rounded-full flex items-center justify-center shadow-sm">{layerConfig.icon}</span>
-                      <span className="text-sm font-semibold text-neutral-dark">{layerConfig.name}</span>
+                      <span className="text-sm font-semibold text-neutral-dark dark:text-white">{layerConfig.name}</span>
                     </div>
                     <div className={`w-11 h-6 rounded-full transition-colors duration-300 relative ${value ? 'bg-success-green' : 'bg-neutral-300'}`}>
                       <motion.div 
@@ -189,19 +189,19 @@ const LiveMapScreen: React.FC<LiveMapScreenProps> = ({ onNavigate }) => {
             
             {/* Legend */}
             <div className="mt-5 pt-4 border-t border-neutral-100">
-              <h4 className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-3">Live Crowd Levels</h4>
+              <h4 className="text-[11px] font-bold text-neutral-400 dark:text-gray-500 uppercase tracking-wider mb-3">Live Crowd Levels</h4>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <div className="w-2.5 h-2.5 bg-[#0E9F6E] rounded-full shadow-sm"></div>
-                  <span className="text-xs font-semibold text-neutral-medium">Low (0-40%)</span>
+                  <span className="text-xs font-semibold text-neutral-medium dark:text-gray-400">Low (0-40%)</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-2.5 h-2.5 bg-[#E07A5F] rounded-full shadow-sm"></div>
-                  <span className="text-xs font-semibold text-neutral-medium">Medium (41-75%)</span>
+                  <span className="text-xs font-semibold text-neutral-medium dark:text-gray-400">Medium (41-75%)</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div className="w-2.5 h-2.5 bg-[#C1121F] rounded-full shadow-sm"></div>
-                  <span className="text-xs font-semibold text-neutral-medium">High (76-100%)</span>
+                  <span className="text-xs font-semibold text-neutral-medium dark:text-gray-400">High (76-100%)</span>
                 </div>
               </div>
             </div>

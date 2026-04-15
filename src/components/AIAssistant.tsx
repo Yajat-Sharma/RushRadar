@@ -11,28 +11,28 @@ const SMART_TIPS = [
   {
     icon: Clock,
     color: 'text-primary-blue',
-    bg: 'bg-blue-50',
+    bg: 'bg-blue-50 dark:bg-blue-900/30',
     title: 'Leave in 12 minutes',
     desc: 'Beat the 8:30 AM rush spike. Trains are 40% less crowded before 8:15.',
   },
   {
     icon: TrendingUp,
     color: 'text-success-green',
-    bg: 'bg-green-50',
+    bg: 'bg-green-50 dark:bg-green-900/30',
     title: 'Harbour Line today',
     desc: 'Alternative via Harbour Line is 35% less crowded with only 8 min extra.',
   },
   {
     icon: MapPin,
     color: 'text-warning-orange',
-    bg: 'bg-orange-50',
+    bg: 'bg-orange-50 dark:bg-orange-900/30',
     title: 'Platform tip',
     desc: 'Stand near Coach 9–11. They board faster and are less crowded at peak.',
   },
   {
     icon: AlertTriangle,
     color: 'text-danger-red',
-    bg: 'bg-red-50',
+    bg: 'bg-red-50 dark:bg-red-900/30',
     title: 'Delay alert',
     desc: 'Western Line running 6 min late due to signal work at Dadar.',
   },
@@ -79,12 +79,13 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onNavigate }) => {
 
   return (
     <>
-      {/* FAB */}
+      {/* FAB — positioned above bottom nav */}
       <motion.button
         whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.93 }}
+        whileTap={{ scale: 0.92 }}
         onClick={() => setIsOpen(true)}
-        className="absolute bottom-28 right-5 w-14 h-14 bg-gradient-to-br from-primary-blue to-primary-blue-light rounded-2xl shadow-xl flex items-center justify-center z-30"
+        className="absolute bottom-[100px] right-5 w-14 h-14 bg-gradient-to-br from-primary-blue to-primary-blue-light rounded-2xl shadow-xl flex items-center justify-center z-30"
+        style={{ boxShadow: '0 8px 24px rgba(26, 86, 219, 0.4)' }}
       >
         <Sparkles size={22} className="text-white" />
       </motion.button>
@@ -105,33 +106,36 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onNavigate }) => {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', stiffness: 380, damping: 38 }}
-              className="absolute bottom-0 left-0 right-0 bg-white rounded-t-[28px] z-50 overflow-hidden"
-              style={{ maxHeight: '85%' }}
+              className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-[28px] z-50 overflow-hidden border-t border-neutral-100 dark:border-gray-700"
+              style={{ maxHeight: '86%' }}
             >
               {/* Handle */}
               <div className="flex justify-center pt-3">
-                <div className="w-10 h-1 bg-neutral-200 rounded-full" />
+                <div className="w-10 h-1 bg-neutral-200 dark:bg-gray-700 rounded-full" />
               </div>
 
               {/* Header */}
-              <div className="flex items-center justify-between px-5 py-3 border-b border-neutral-100">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-neutral-100 dark:border-gray-700">
+                <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 bg-gradient-to-br from-primary-blue to-primary-blue-light rounded-xl flex items-center justify-center">
-                    <Sparkles size={16} className="text-white" />
+                    <Sparkles size={15} className="text-white" />
                   </div>
                   <div>
-                    <h2 className="text-[15px] font-bold text-neutral-900">AI Commute Assistant</h2>
-                    <p className="text-[11px] text-neutral-500 font-medium">Powered by CrowdSense AI</p>
+                    <h2 className="text-[15px] font-black text-neutral-900 dark:text-white">AI Commute Assistant</h2>
+                    <p className="text-[10px] text-neutral-500 dark:text-gray-400 font-medium">CrowdSense AI · Always up to date</p>
                   </div>
                 </div>
-                <button onClick={() => setIsOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-100">
-                  <X size={16} className="text-neutral-600" />
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-gray-800 hover:bg-neutral-200 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <X size={15} className="text-neutral-600 dark:text-gray-300" />
                 </button>
               </div>
 
               {/* Smart Tips */}
               <div className="px-4 pt-3 pb-2">
-                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider mb-2">Smart Tips For You</p>
+                <p className="text-[10px] font-black text-neutral-400 dark:text-gray-500 uppercase tracking-wider mb-2">Smart Tips For You</p>
                 <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                   {SMART_TIPS.map((tip) => {
                     const Icon = tip.icon;
@@ -139,11 +143,11 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onNavigate }) => {
                       <button
                         key={tip.title}
                         onClick={() => sendMessage(tip.title)}
-                        className={`shrink-0 ${tip.bg} rounded-2xl p-3 text-left w-44 border border-transparent hover:border-neutral-200 transition-colors`}
+                        className={`shrink-0 ${tip.bg} rounded-2xl p-3 text-left w-44 border border-transparent hover:border-neutral-200 dark:hover:border-gray-600 transition-colors`}
                       >
-                        <Icon size={16} className={`${tip.color} mb-1.5`} />
-                        <p className="text-[12px] font-bold text-neutral-900 leading-tight">{tip.title}</p>
-                        <p className="text-[10px] text-neutral-500 mt-0.5 leading-snug line-clamp-2">{tip.desc}</p>
+                        <Icon size={15} className={`${tip.color} mb-1.5`} />
+                        <p className="text-[12px] font-black text-neutral-900 dark:text-white leading-tight">{tip.title}</p>
+                        <p className="text-[10px] text-neutral-500 dark:text-gray-400 mt-0.5 leading-snug line-clamp-2">{tip.desc}</p>
                       </button>
                     );
                   })}
@@ -151,13 +155,13 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onNavigate }) => {
               </div>
 
               {/* Chat Messages */}
-              <div className="px-4 py-2 space-y-3 overflow-y-auto no-scrollbar" style={{ maxHeight: '230px' }}>
+              <div className="px-4 py-2 space-y-3 overflow-y-auto no-scrollbar" style={{ maxHeight: '220px' }}>
                 {messages.map((msg, i) => (
                   <div key={i} className={`flex ${msg.from === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-[13px] font-medium leading-snug ${
+                    <div className={`max-w-[82%] px-3.5 py-2.5 rounded-2xl text-[13px] font-medium leading-snug ${
                       msg.from === 'user'
                         ? 'bg-primary-blue text-white rounded-br-md'
-                        : 'bg-neutral-100 text-neutral-800 rounded-bl-md'
+                        : 'bg-neutral-100 dark:bg-gray-800 text-neutral-800 dark:text-gray-200 rounded-bl-md'
                     }`}>
                       {msg.text}
                     </div>
@@ -165,10 +169,10 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onNavigate }) => {
                 ))}
                 {isTyping && (
                   <div className="flex justify-start">
-                    <div className="bg-neutral-100 px-4 py-3 rounded-2xl rounded-bl-md flex gap-1.5">
+                    <div className="bg-neutral-100 dark:bg-gray-800 px-4 py-3 rounded-2xl rounded-bl-md flex gap-1.5">
                       {[0, 1, 2].map(i => (
                         <motion.div key={i} animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.15 }}
-                          className="w-1.5 h-1.5 bg-neutral-400 rounded-full" />
+                          className="w-1.5 h-1.5 bg-neutral-400 dark:bg-gray-500 rounded-full" />
                       ))}
                     </div>
                   </div>
@@ -176,18 +180,18 @@ export const AIAssistant: React.FC<AIAssistantProps> = ({ onNavigate }) => {
               </div>
 
               {/* Input */}
-              <div className="px-4 pb-8 pt-2 border-t border-neutral-100 flex gap-2">
+              <div className="px-4 pb-8 pt-2 border-t border-neutral-100 dark:border-gray-700 flex gap-2">
                 <input
                   type="text"
                   placeholder="Ask about crowd, delays, platforms…"
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && sendMessage(input)}
-                  className="flex-1 bg-[#F5F7FA] rounded-xl px-4 py-2.5 text-sm font-medium text-neutral-900 outline-none focus:ring-2 focus:ring-primary-blue/30"
+                  className="flex-1 bg-neutral-100 dark:bg-gray-800 rounded-2xl px-4 py-3 text-[13px] font-medium text-neutral-900 dark:text-white outline-none focus:ring-2 focus:ring-primary-blue/30 dark:placeholder-gray-500 border border-transparent dark:border-gray-700"
                 />
                 <button
                   onClick={() => sendMessage(input)}
-                  className="w-10 h-10 bg-primary-blue rounded-xl flex items-center justify-center shrink-0"
+                  className="w-11 h-11 bg-gradient-to-br from-primary-blue to-primary-blue-light rounded-2xl flex items-center justify-center shrink-0 shadow-md"
                 >
                   <Send size={16} className="text-white" />
                 </button>

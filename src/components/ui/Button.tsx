@@ -18,13 +18,13 @@ export const Button = ({
   className = '',
   ...props
 }: ButtonProps) => {
-  const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-xl transition-colors outline-none focus:ring-2 focus:ring-offset-2';
-  
+  const baseStyles = 'inline-flex items-center justify-center font-semibold rounded-xl transition-all outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900';
+
   const variants = {
     primary: 'bg-gradient-to-r from-primary-blue to-primary-blue-light text-white shadow-md hover:shadow-lg focus:ring-primary-blue',
-    secondary: 'bg-white text-neutral-dark border border-neutral-light shadow-sm hover:bg-neutral-50 focus:ring-neutral-medium',
-    outline: 'bg-transparent text-primary-blue border-2 border-primary-blue hover:bg-blue-50 focus:ring-primary-blue',
-    ghost: 'bg-transparent text-neutral-dark hover:bg-neutral-100 focus:ring-neutral-medium',
+    secondary: 'bg-white dark:bg-gray-800 text-neutral-dark dark:text-white border border-neutral-light dark:border-gray-600 shadow-sm hover:bg-neutral-50 dark:hover:bg-gray-700 focus:ring-neutral-medium',
+    outline: 'bg-transparent text-primary-blue border-2 border-primary-blue hover:bg-blue-50 dark:hover:bg-primary-blue/10 focus:ring-primary-blue',
+    ghost: 'bg-transparent text-neutral-dark dark:text-gray-200 hover:bg-neutral-100 dark:hover:bg-gray-800 focus:ring-neutral-medium',
     danger: 'bg-danger-red text-white shadow-md hover:bg-red-600 focus:ring-danger-red',
   };
 
@@ -40,7 +40,7 @@ export const Button = ({
   return (
     <motion.button
       whileHover={{ scale: isLoading ? 1 : 1.01 }}
-      whileTap={{ scale: isLoading ? 1 : 0.98 }}
+      whileTap={{ scale: isLoading ? 1 : 0.97 }}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${widthClass} ${loadingClass} ${className}`}
       disabled={isLoading || props.disabled}
       {...props}

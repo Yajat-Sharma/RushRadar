@@ -28,7 +28,7 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setToasts(prev => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id));
-    }, 3000);
+    }, 3200);
   }, []);
 
   const removeToast = useCallback((id: string) => {
@@ -42,16 +42,17 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const icons = { success: CheckCircle, error: XCircle, info: Info };
-  const colors = {
-    success: 'bg-emerald-500',
-    error: 'bg-red-500',
-    info: 'bg-blue-500',
+  const styles = {
+    success: 'bg-emerald-500 dark:bg-emerald-600',
+    error: 'bg-red-500 dark:bg-red-600',
+    info: 'bg-primary-blue dark:bg-primary-blue-dark',
   };
 
   return (
     <ToastContext.Provider value={{ toast }}>
       {children}
-      <div className="absolute bottom-28 left-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
+      {/* Fixed above the bottom nav (bottom nav is ~80px + padding ~24px = ~104px) */}
+      <div className="absolute bottom-[100px] left-4 right-4 z-[200] flex flex-col gap-2 pointer-events-none">
         <AnimatePresence>
           {toasts.map(t => {
             const Icon = icons[t.type];
@@ -62,12 +63,15 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                className={`${colors[t.type]} text-white rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl pointer-events-auto`}
+                className={`${styles[t.type]} text-white rounded-2xl px-4 py-3 flex items-center gap-3 shadow-xl pointer-events-auto border border-white/10`}
               >
                 <Icon size={18} className="shrink-0" />
-                <span className="text-sm font-semibold flex-1">{t.message}</span>
-                <button onClick={() => removeToast(t.id)} className="opacity-70 hover:opacity-100 transition-opacity">
-                  <X size={16} />
+                <span className="text-sm font-semibold flex-1 leading-snug">{t.message}</span>
+                <button
+                  onClick={() => removeToast(t.id)}
+                  className="opacity-70 hover:opacity-100 transition-opacity shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20"
+                >
+                  <X size={14} />
                 </button>
               </motion.div>
             );

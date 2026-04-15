@@ -86,6 +86,28 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   });
 
+  // ─── CRITICAL FIX: Apply dark class to <html> element ───────────────────────
+  // Tailwind's darkMode: 'class' requires the 'dark' class on <html>, not an inner div.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (state.settings.darkMode) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [state.settings.darkMode]);
+
+  // Initialize dark mode on mount from persisted preference
+  useEffect(() => {
+    const savedSettings = localStorage.getItem('crowdsense_settings');
+    if (savedSettings) {
+      const parsed = JSON.parse(savedSettings);
+      if (parsed.darkMode) {
+        document.documentElement.classList.add('dark');
+      }
+    }
+  }, []);
+
   // Persist user to localStorage
   useEffect(() => {
     if (state.user) {

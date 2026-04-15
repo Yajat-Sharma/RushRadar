@@ -35,6 +35,18 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
     return 'stroke-danger-red';
   };
 
+  const getCrowdBg = (level: number) => {
+    if (level <= 30) return 'bg-emerald-50 dark:bg-emerald-900/20';
+    if (level <= 70) return 'bg-orange-50 dark:bg-orange-900/20';
+    return 'bg-red-50 dark:bg-red-900/20';
+  };
+
+  const getCrowdLabel = (level: number) => {
+    if (level <= 30) return 'Low';
+    if (level <= 70) return 'Moderate';
+    return 'Crowded';
+  };
+
   const handleSearchClick = () => {
     if (!state.fromLocation || !state.toLocation) return;
     setIsSearching(true);
@@ -48,7 +60,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
 
   const handleStationTap = (stationName: string) => {
     setToLocation(stationName);
-    // Auto-navigate to routes if origin is already set
     if (state.fromLocation) {
       setIsSearching(true);
       setTimeout(() => {
@@ -66,34 +77,37 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
 
   const notifCount = state.notificationCount;
 
+  const timeOfDay = new Date().getHours();
+  const greeting = timeOfDay < 12 ? 'Good morning' : timeOfDay < 17 ? 'Good afternoon' : 'Good evening';
+
   return (
-    <div className="h-full bg-neutral-card flex flex-col">
+    <div className="h-full bg-[#F5F7FA] dark:bg-gray-950 flex flex-col transition-colors duration-300">
       {/* Header */}
-      <div className="bg-white/80 backdrop-blur-md px-5 py-4 pt-10 sticky top-0 z-20 shadow-sm">
+      <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-md px-5 py-4 pt-10 sticky top-0 z-20 border-b border-neutral-100/50 dark:border-gray-800/50 shadow-sm transition-colors duration-300">
         <div className="flex items-center justify-between">
           <motion.div
             whileTap={{ scale: 0.95 }}
-            className="flex items-center space-x-2 cursor-pointer"
+            className="flex items-center space-x-3 cursor-pointer"
             onClick={() => onNavigate('map')}
           >
-            <div className="w-8 h-8 rounded-full bg-primary-blue/10 flex items-center justify-center">
-              <MapPin size={18} className="text-primary-blue" />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-blue to-primary-blue-light flex items-center justify-center shadow-md">
+              <MapPin size={18} className="text-white" />
             </div>
             <div>
-              <p className="text-neutral-dark font-bold text-sm tracking-tight">
-                Hi, {displayName} 👋
+              <p className="text-neutral-dark dark:text-white font-bold text-sm tracking-tight">
+                {greeting}, {displayName} 👋
               </p>
-              <p className="text-neutral-medium text-xs font-medium">{regionConfig.locationContext.locationSubtitle}</p>
+              <p className="text-neutral-medium dark:text-gray-400 text-xs font-medium">{regionConfig.locationContext.locationSubtitle}</p>
             </div>
           </motion.div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <div className="relative">
               <IconButton variant="secondary" size="md" onClick={() => onNavigate('notifications')}>
-                <Bell size={18} />
+                <Bell size={18} className="text-neutral-dark dark:text-white" />
               </IconButton>
               {notifCount > 0 && (
-                <div className="absolute top-0 right-0 w-3.5 h-3.5 bg-danger-red rounded-full flex items-center justify-center border-2 border-white shadow-sm">
-                  <span className="text-white text-[8px] font-bold">{notifCount}</span>
+                <div className="absolute top-0 right-0 w-4 h-4 bg-danger-red rounded-full flex items-center justify-center border-2 border-white dark:border-gray-900 shadow-sm">
+                  <span className="text-white text-[8px] font-black">{notifCount}</span>
                 </div>
               )}
             </div>
@@ -104,27 +118,27 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-6">
+      <div className="flex-1 overflow-y-auto pb-6 no-scrollbar">
         {/* Search Section */}
         <div className="p-5">
-          <Card className="shadow-lg border-none bg-white relative">
-            <h2 className="text-lg font-bold text-neutral-dark mb-4">Where are you going?</h2>
+          <Card className="shadow-md border-none !bg-white dark:!bg-gray-800">
+            <h2 className="text-lg font-black text-neutral-dark dark:text-white mb-4 tracking-tight">Where are you going?</h2>
             <LocationInput
               value={state.fromLocation}
               onChange={setFromLocation}
               placeholder="Current Location"
             />
-            <div className="absolute right-8 top-[85px] z-10">
+            <div className="absolute right-8 top-[88px] z-10">
               <IconButton
                 variant="secondary"
                 size="md"
                 onClick={swapLocations}
-                className="shadow-md border-white border-[3px]"
+                className="shadow-md border-[3px] border-white dark:border-gray-700"
               >
-                <ArrowUpDown size={16} className="text-neutral-medium" />
+                <ArrowUpDown size={16} className="text-neutral-medium dark:text-gray-300" />
               </IconButton>
             </div>
-            <div className="mb-5">
+            <div className="mb-4 mt-2">
               <LocationInput
                 value={state.toLocation}
                 onChange={setToLocation}
@@ -138,99 +152,115 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
               onClick={handleSearchClick}
               isLoading={isSearching}
               disabled={!state.fromLocation || !state.toLocation}
+              className="!rounded-2xl !py-4 text-[15px] font-black"
             >
-              <Search size={18} className="mr-2" />
-              Find Routes
+              {!isSearching && <Search size={18} className="mr-2" />}
+              {isSearching ? 'Finding Routes…' : 'Find Routes'}
             </Button>
           </Card>
         </div>
 
         {/* Peak Hour Banner */}
-        <div className="px-5 mb-6">
+        <div className="px-5 mb-5">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-gradient-to-r from-orange-50 to-red-50 border border-warning-orange/30 rounded-2xl p-4 shadow-sm flex items-start space-x-3"
+            transition={{ delay: 0.15 }}
+            className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/25 dark:to-red-900/25 border border-warning-orange/25 dark:border-orange-700/40 rounded-2xl p-4 shadow-sm flex items-center space-x-3"
           >
-            <div className="p-1.5 bg-white rounded-full shadow-sm">
-              <AlertTriangle size={18} className="text-warning-orange" />
+            <div className="p-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm shrink-0">
+              <AlertTriangle size={16} className="text-warning-orange" />
             </div>
-            <div className="flex-1 pt-0.5">
-              <p className="text-orange-900 font-bold text-sm">Peak Hours ({regionConfig.peakHours.morning})</p>
-              <p className="text-orange-800/80 font-medium text-xs mt-0.5">Heavy rush expected on Western Line</p>
+            <div className="flex-1">
+              <p className="text-orange-900 dark:text-orange-300 font-bold text-sm">
+                Peak Hours ({regionConfig.peakHours.morning})
+              </p>
+              <p className="text-orange-800/70 dark:text-orange-400/80 font-medium text-xs mt-0.5">
+                Heavy rush expected on Western Line
+              </p>
             </div>
+            <button
+              onClick={() => onNavigate('analytics')}
+              className="text-xs font-bold text-warning-orange dark:text-orange-400 bg-orange-100 dark:bg-orange-900/40 px-2.5 py-1 rounded-lg shrink-0"
+            >
+              Details
+            </button>
           </motion.div>
         </div>
 
         {/* Nearby Stations */}
         <div className="px-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-neutral-dark font-bold text-lg">Nearby Stations</h3>
+            <h3 className="text-neutral-dark dark:text-white font-black text-lg tracking-tight">Nearby Stations</h3>
             <button
-              className="text-primary-blue text-sm font-semibold hover:underline"
+              className="text-primary-blue text-sm font-bold hover:underline"
               onClick={() => onNavigate('map')}
             >
               View All
             </button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {nearbyStations.map((station, index) => (
-              <Card
+              <motion.div
                 key={index}
-                interactive
-                onClick={() => handleStationTap(station.name)}
-                className="flex items-center justify-between !p-4"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 * index }}
               >
-                <div className="flex-1">
-                  <h4 className="text-neutral-dark font-bold text-[15px]">{station.name}</h4>
-                  <div className="flex items-center space-x-2 mt-1">
-                    <p className="text-neutral-medium font-medium text-xs">{station.distance}</p>
-                    <span className="w-1 h-1 bg-neutral-light rounded-full" />
-                    <div className="flex items-center space-x-1">
-                      <Clock size={12} className="text-success-green" />
-                      <p className="text-success-green text-xs font-bold">{station.nextArrival}</p>
+                <Card
+                  interactive
+                  onClick={() => handleStationTap(station.name)}
+                  className="flex items-center justify-between !p-4 !border-neutral-100 dark:!border-gray-700"
+                >
+                  <div className="flex-1 pr-3">
+                    <h4 className="text-neutral-dark dark:text-white font-black text-[15px]">{station.name}</h4>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <p className="text-neutral-medium dark:text-gray-400 font-medium text-xs">{station.distance}</p>
+                      <span className="w-1 h-1 bg-neutral-300 dark:bg-gray-600 rounded-full" />
+                      <div className="flex items-center space-x-1">
+                        <Clock size={11} className="text-success-green" />
+                        <p className="text-success-green text-xs font-bold">{station.nextArrival}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center flex-wrap gap-1.5 mt-2.5">
+                      {station.modes.map((mode, i) => (
+                        <span key={i} className="text-[11px] bg-neutral-100 dark:bg-gray-700 text-neutral-dark dark:text-gray-200 px-2 py-0.5 rounded-lg font-semibold border border-neutral-200 dark:border-gray-600">
+                          {mode}
+                        </span>
+                      ))}
+                      {station.specialFeatures && station.specialFeatures.length > 0 && (
+                        <span className="text-[10px] bg-primary-blue/10 dark:bg-primary-blue/20 text-primary-blue dark:text-blue-300 px-2 py-0.5 rounded-lg font-bold uppercase tracking-wide">
+                          {station.specialFeatures[0]}
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center flex-wrap gap-1.5 mt-2.5">
-                    {station.modes.map((mode, i) => (
-                      <span key={i} className="text-xs bg-neutral-light/70 text-neutral-dark px-2 py-0.5 rounded-md font-medium border border-neutral-200">
-                        {mode}
-                      </span>
-                    ))}
-                    {station.specialFeatures && station.specialFeatures.length > 0 && (
-                      <span className="text-[10px] bg-primary-blue/10 text-primary-blue-dark px-2 py-1 rounded-md font-bold uppercase tracking-wide">
-                        {station.specialFeatures[0]}
-                      </span>
-                    )}
-                    {/* Ladies Coach badge */}
-                    {station.specialFeatures?.includes('Ladies Coach') && (
-                      <span className="text-[9px] font-bold text-pink-600 bg-pink-50 border border-pink-200 px-1.5 py-0.5 rounded-full">🩷 Ladies Coach</span>
-                    )}
-                  </div>
-                </div>
 
-                {/* Crowd Indicator */}
-                <div className="flex flex-col items-center justify-center pl-3 relative">
-                  <svg className="w-12 h-12 transform -rotate-90">
-                    <circle cx="24" cy="24" r="18" stroke="#F3F4F6" strokeWidth="4" fill="none" />
-                    <motion.circle
-                      initial={{ strokeDasharray: '0 100' }}
-                      animate={{ strokeDasharray: `${station.crowdLevel} ${100 - station.crowdLevel}` }}
-                      transition={{ duration: 1, ease: 'easeOut' }}
-                      cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="4" fill="none"
-                      strokeLinecap="round"
-                      className={getCrowdRingColor(station.crowdLevel)}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className={`text-xs font-bold ${getCrowdColor(station.crowdLevel)}`}>
-                      {station.crowdLevel}%
+                  {/* Crowd Ring Indicator */}
+                  <div className="flex flex-col items-center justify-center gap-1 pl-2">
+                    <div className={`relative w-12 h-12 rounded-full ${getCrowdBg(station.crowdLevel)} flex items-center justify-center`}>
+                      <svg className="w-12 h-12 transform -rotate-90 absolute inset-0">
+                        <circle cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="3.5" fill="none" className="text-neutral-200 dark:text-gray-700" />
+                        <motion.circle
+                          initial={{ strokeDasharray: '0 113' }}
+                          animate={{ strokeDasharray: `${(station.crowdLevel / 100) * 113} ${113 - (station.crowdLevel / 100) * 113}` }}
+                          transition={{ duration: 1, ease: 'easeOut', delay: 0.1 * index }}
+                          cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="3.5" fill="none"
+                          strokeLinecap="round"
+                          className={getCrowdRingColor(station.crowdLevel)}
+                        />
+                      </svg>
+                      <span className={`text-[11px] font-black z-10 ${getCrowdColor(station.crowdLevel)}`}>
+                        {station.crowdLevel}%
+                      </span>
+                    </div>
+                    <span className={`text-[9px] font-bold ${getCrowdColor(station.crowdLevel)}`}>
+                      {getCrowdLabel(station.crowdLevel)}
                     </span>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              </motion.div>
             ))}
           </div>
         </div>

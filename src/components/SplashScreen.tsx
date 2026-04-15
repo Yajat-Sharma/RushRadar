@@ -9,73 +9,79 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete();
-    }, 2500);
+    }, 2400);
 
     return () => clearTimeout(timer);
   }, [onComplete]);
 
   return (
-    <div className="h-screen bg-gradient-to-br from-primary-blue to-secondary-teal flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-20 left-10 text-6xl">🚌</div>
-        <div className="absolute top-40 right-16 text-4xl">🚊</div>
-        <div className="absolute bottom-40 left-20 text-5xl">🚇</div>
-        <div className="absolute bottom-20 right-10 text-3xl">🚍</div>
-      </div>
+    <div className="h-screen bg-gradient-to-br from-[#1A56DB] via-[#1640b0] to-[#0E9F6E] flex flex-col items-center justify-center relative overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl -translate-y-1/3 translate-x-1/3 pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-3xl translate-y-1/3 -translate-x-1/3 pointer-events-none" />
 
-      {/* Logo Animation */}
+      {/* Animated grid pattern */}
+      <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
+        }}
+      />
+
+      {/* Logo */}
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
+        initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="mb-6"
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        className="mb-6 relative"
       >
-        <div className="w-30 h-30 bg-white rounded-3xl flex items-center justify-center shadow-xl">
-          <span className="text-4xl">📊</span>
+        {/* Glow ring */}
+        <div className="absolute inset-0 bg-white/20 rounded-3xl blur-2xl scale-125" />
+        <div className="relative w-24 h-24 bg-white rounded-3xl flex items-center justify-center shadow-2xl border border-white/20">
+          <span className="text-5xl leading-none select-none">🚊</span>
         </div>
       </motion.div>
 
       {/* App Name */}
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
-        className="text-white text-3xl font-bold mb-2 tracking-tight"
+        className="text-center"
       >
-        RushRadar
-      </motion.h1>
+        <h1 className="text-white text-[32px] font-black tracking-tight leading-none">
+          CrowdSense
+        </h1>
+        <p className="text-white/60 font-semibold text-base mt-2 tracking-wide">
+          Travel Smarter · Avoid the Crowd
+        </p>
+      </motion.div>
 
-      {/* Tagline */}
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 0.7, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.5 }}
-        className="text-white text-lg text-center px-8"
-      >
-        Travel Smarter, Avoid the Crowd
-      </motion.p>
-
-      {/* Loading Indicator */}
+      {/* Version tag */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.8 }}
-        transition={{ duration: 0.4, delay: 1 }}
-        className="absolute bottom-12 flex space-x-3"
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8 }}
+        className="mt-4"
+      >
+        <span className="bg-white/15 text-white/70 text-[11px] font-bold px-3 py-1 rounded-full tracking-wider uppercase">
+          v2.0 MVP
+        </span>
+      </motion.div>
+
+      {/* Loading dots */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+        className="absolute bottom-14 flex space-x-2.5"
       >
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
-            className="w-2 h-2 bg-white rounded-full"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.5, 1, 0.5],
-            }}
-            transition={{
-              duration: 1.2,
-              repeat: Infinity,
-              delay: i * 0.2,
-            }}
+            className="w-1.5 h-1.5 bg-white rounded-full"
+            animate={{ scale: [1, 1.4, 1], opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
           />
         ))}
       </motion.div>
