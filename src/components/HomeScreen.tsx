@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { MapPin, ArrowUpDown, Search, AlertTriangle, Clock, Bell, User } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, ArrowUpDown, Search, AlertTriangle, Clock, Bell, User, Wifi } from 'lucide-react';
 import { Screen } from '../App';
 import { getCurrentRegion } from '../config/regions';
 import { INDIA_STATIONS } from '../data/indiaTransitData';
@@ -11,17 +11,34 @@ import { LocationInput } from './ui/LocationInput';
 import { generateMockRoutes } from '../utils/routeGenerator';
 import { IconButton } from './ui/IconButton';
 import { AIAssistant } from './AIAssistant';
+import { useLiveData } from '../hooks/useLiveData';
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen) => void;
 }
+
+// Skeleton placeholder for station card
+const StationSkeleton = () => (
+  <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-neutral-100 dark:border-gray-700 flex items-center justify-between animate-pulse">
+    <div className="flex-1 pr-3">
+      <div className="h-4 bg-neutral-200 dark:bg-gray-700 rounded-full w-3/4 mb-2" />
+      <div className="h-3 bg-neutral-100 dark:bg-gray-700 rounded-full w-1/2 mb-3" />
+      <div className="flex gap-2">
+        <div className="h-5 bg-neutral-100 dark:bg-gray-700 rounded-lg w-12" />
+        <div className="h-5 bg-neutral-100 dark:bg-gray-700 rounded-lg w-14" />
+      </div>
+    </div>
+    <div className="w-12 h-12 bg-neutral-100 dark:bg-gray-700 rounded-full" />
+  </div>
+);
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   const regionConfig = getCurrentRegion();
   const { state, setFromLocation, setToLocation, swapLocations, setGeneratedRoutes } = useAppContext();
   const [isSearching, setIsSearching] = useState(false);
 
-  const nearbyStations = INDIA_STATIONS;
+  // Live data hook — stations fluctuate crowd every 22s
+  const { stations, isUpdating, lastUpdatedLabel } = useLiveData(INDIA_STATIONS);
 
   const getCrowdColor = (level: number) => {
     if (level <= 30) return 'text-success-green';
@@ -50,12 +67,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
   const handleSearchClick = () => {
     if (!state.fromLocation || !state.toLocation) return;
     setIsSearching(true);
+    // Slightly randomize delay for realism
+    const delay = 900 + Math.floor(Math.random() * 600);
     setTimeout(() => {
       const routes = generateMockRoutes(state.fromLocation, state.toLocation);
       setGeneratedRoutes(routes);
       setIsSearching(false);
       onNavigate('routes');
-    }, 800);
+    }, delay);
   };
 
   const handleStationTap = (stationName: string) => {
@@ -67,7 +86,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
         setGeneratedRoutes(routes);
         setIsSearching(false);
         onNavigate('routes');
-      }, 600);
+      }, 700 + Math.floor(Math.random() * 400));
     }
   };
 
@@ -97,7 +116,36 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
               <p className="text-neutral-dark dark:text-white font-bold text-sm tracking-tight">
                 {greeting}, {displayName} 👋
               </p>
-              <p className="text-neutral-medium dark:text-gray-400 text-xs font-medium">{regionConfig.locationContext.locationSubtitle}</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-neutral-medium dark:text-gray-400 text-xs font-medium">
+                  {regionConfig.locationContext.locationSubtitle}
+                </p>
+                {/* Live indicator */}
+                <AnimatePresence mode="wait">
+                  {isUpdating ? (
+                    <motion.span
+                      key="updating"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex items-center gap-1 text-[9px] font-bold text-primary-blue bg-blue-50 dark:bg-blue-900/30 px-1.5 py-0.5 rounded-full"
+                    >
+                      <Wifi size={8} className="animate-pulse" />
+                      Updating…
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="live"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex items-center gap-1 text-[9px] font-bold text-success-green bg-green-50 dark:bg-green-900/30 px-1.5 py-0.5 rounded-full"
+                    >
+                      <span className="w-1.5 h-1.5 bg-success-green rounded-full animate-pulse inline-block" />
+                      Live · {lastUpdatedLabel}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </motion.div>
           <div className="flex items-center space-x-2">
@@ -121,7 +169,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
       <div className="flex-1 overflow-y-auto pb-6 no-scrollbar">
         {/* Search Section */}
         <div className="p-5">
-          <Card className="shadow-md border-none !bg-white dark:!bg-gray-800">
+          <Card className="shadow-md border-none !bg-white dark:!bg-gray-800 relative overflow-visible">
             <h2 className="text-lg font-black text-neutral-dark dark:text-white mb-4 tracking-tight">Where are you going?</h2>
             <LocationInput
               value={state.fromLocation}
@@ -151,11 +199,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
               size="lg"
               onClick={handleSearchClick}
               isLoading={isSearching}
-              disabled={!state.fromLocation || !state.toLocation}
+              disabled={!state.fromLocation || !state.toLocation || isSearching}
               className="!rounded-2xl !py-4 text-[15px] font-black"
             >
               {!isSearching && <Search size={18} className="mr-2" />}
-              {isSearching ? 'Finding Routes…' : 'Find Routes'}
+              {isSearching ? 'Finding Best Routes…' : 'Find Routes'}
             </Button>
           </Card>
         </div>
@@ -181,7 +229,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
             </div>
             <button
               onClick={() => onNavigate('analytics')}
-              className="text-xs font-bold text-warning-orange dark:text-orange-400 bg-orange-100 dark:bg-orange-900/40 px-2.5 py-1 rounded-lg shrink-0"
+              className="text-xs font-bold text-warning-orange dark:text-orange-400 bg-orange-100 dark:bg-orange-900/40 px-2.5 py-1 rounded-lg shrink-0 hover:bg-orange-200 dark:hover:bg-orange-800/40 transition-colors"
             >
               Details
             </button>
@@ -191,78 +239,93 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate }) => {
         {/* Nearby Stations */}
         <div className="px-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-neutral-dark dark:text-white font-black text-lg tracking-tight">Nearby Stations</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-neutral-dark dark:text-white font-black text-lg tracking-tight">Nearby Stations</h3>
+              {/* Pulsing live badge */}
+              <span className="flex items-center gap-1 text-[10px] font-black text-white bg-success-green px-2 py-0.5 rounded-full">
+                <span className="w-1.5 h-1.5 bg-white rounded-full inline-block" />
+                LIVE
+              </span>
+            </div>
             <button
               className="text-primary-blue text-sm font-bold hover:underline"
               onClick={() => onNavigate('map')}
             >
-              View All
+              View Map
             </button>
           </div>
 
-          <div className="space-y-3">
-            {nearbyStations.map((station, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05 * index }}
-              >
-                <Card
-                  interactive
-                  onClick={() => handleStationTap(station.name)}
-                  className="flex items-center justify-between !p-4 !border-neutral-100 dark:!border-gray-700"
-                >
-                  <div className="flex-1 pr-3">
-                    <h4 className="text-neutral-dark dark:text-white font-black text-[15px]">{station.name}</h4>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <p className="text-neutral-medium dark:text-gray-400 font-medium text-xs">{station.distance}</p>
-                      <span className="w-1 h-1 bg-neutral-300 dark:bg-gray-600 rounded-full" />
-                      <div className="flex items-center space-x-1">
-                        <Clock size={11} className="text-success-green" />
-                        <p className="text-success-green text-xs font-bold">{station.nextArrival}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center flex-wrap gap-1.5 mt-2.5">
-                      {station.modes.map((mode, i) => (
-                        <span key={i} className="text-[11px] bg-neutral-100 dark:bg-gray-700 text-neutral-dark dark:text-gray-200 px-2 py-0.5 rounded-lg font-semibold border border-neutral-200 dark:border-gray-600">
-                          {mode}
-                        </span>
-                      ))}
-                      {station.specialFeatures && station.specialFeatures.length > 0 && (
-                        <span className="text-[10px] bg-primary-blue/10 dark:bg-primary-blue/20 text-primary-blue dark:text-blue-300 px-2 py-0.5 rounded-lg font-bold uppercase tracking-wide">
-                          {station.specialFeatures[0]}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Crowd Ring Indicator */}
-                  <div className="flex flex-col items-center justify-center gap-1 pl-2">
-                    <div className={`relative w-12 h-12 rounded-full ${getCrowdBg(station.crowdLevel)} flex items-center justify-center`}>
-                      <svg className="w-12 h-12 transform -rotate-90 absolute inset-0">
-                        <circle cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="3.5" fill="none" className="text-neutral-200 dark:text-gray-700" />
-                        <motion.circle
-                          initial={{ strokeDasharray: '0 113' }}
-                          animate={{ strokeDasharray: `${(station.crowdLevel / 100) * 113} ${113 - (station.crowdLevel / 100) * 113}` }}
-                          transition={{ duration: 1, ease: 'easeOut', delay: 0.1 * index }}
-                          cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="3.5" fill="none"
-                          strokeLinecap="round"
-                          className={getCrowdRingColor(station.crowdLevel)}
-                        />
-                      </svg>
-                      <span className={`text-[11px] font-black z-10 ${getCrowdColor(station.crowdLevel)}`}>
-                        {station.crowdLevel}%
-                      </span>
-                    </div>
-                    <span className={`text-[9px] font-bold ${getCrowdColor(station.crowdLevel)}`}>
-                      {getCrowdLabel(station.crowdLevel)}
-                    </span>
-                  </div>
-                </Card>
+          <AnimatePresence mode="wait">
+            {isSearching ? (
+              // Skeleton while searching
+              <motion.div key="skeleton" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
+                {[0, 1, 2].map(i => <StationSkeleton key={i} />)}
               </motion.div>
-            ))}
-          </div>
+            ) : (
+              <motion.div key="stations" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+                {stations.map((station, index) => (
+                  <motion.div
+                    key={station.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.05 * index }}
+                  >
+                    <Card
+                      interactive
+                      onClick={() => handleStationTap(station.name)}
+                      className="flex items-center justify-between !p-4 !border-neutral-100 dark:!border-gray-700"
+                    >
+                      <div className="flex-1 pr-3">
+                        <h4 className="text-neutral-dark dark:text-white font-black text-[15px]">{station.name}</h4>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <p className="text-neutral-medium dark:text-gray-400 font-medium text-xs">{station.distance}</p>
+                          <span className="w-1 h-1 bg-neutral-300 dark:bg-gray-600 rounded-full" />
+                          <div className="flex items-center space-x-1">
+                            <Clock size={11} className="text-success-green" />
+                            <p className="text-success-green text-xs font-bold">{station.nextArrival}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center flex-wrap gap-1.5 mt-2.5">
+                          {station.modes.map((mode, i) => (
+                            <span key={i} className="text-[11px] bg-neutral-100 dark:bg-gray-700 text-neutral-dark dark:text-gray-200 px-2 py-0.5 rounded-lg font-semibold border border-neutral-200 dark:border-gray-600">
+                              {mode}
+                            </span>
+                          ))}
+                          {station.specialFeatures && station.specialFeatures.length > 0 && (
+                            <span className="text-[10px] bg-primary-blue/10 dark:bg-primary-blue/20 text-primary-blue dark:text-blue-300 px-2 py-0.5 rounded-lg font-bold uppercase tracking-wide">
+                              {station.specialFeatures[0]}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Animated Crowd Ring */}
+                      <div className="flex flex-col items-center justify-center gap-1 pl-2">
+                        <div className={`relative w-12 h-12 rounded-full ${getCrowdBg(station.crowdLevel)} flex items-center justify-center`}>
+                          <svg className="w-12 h-12 transform -rotate-90 absolute inset-0">
+                            <circle cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="3.5" fill="none" className="text-neutral-200 dark:text-gray-700" />
+                            <motion.circle
+                              animate={{ strokeDasharray: `${(station.crowdLevel / 100) * 113} ${113 - (station.crowdLevel / 100) * 113}` }}
+                              transition={{ duration: 0.8, ease: 'easeOut' }}
+                              cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="3.5" fill="none"
+                              strokeLinecap="round"
+                              className={getCrowdRingColor(station.crowdLevel)}
+                            />
+                          </svg>
+                          <span className={`text-[11px] font-black z-10 ${getCrowdColor(station.crowdLevel)}`}>
+                            {station.crowdLevel}%
+                          </span>
+                        </div>
+                        <span className={`text-[9px] font-bold ${getCrowdColor(station.crowdLevel)}`}>
+                          {getCrowdLabel(station.crowdLevel)}
+                        </span>
+                      </div>
+                    </Card>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 

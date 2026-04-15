@@ -18,6 +18,15 @@ export interface AppSettings {
   darkMode: boolean;
 }
 
+export interface SavedRoute {
+  id: string;
+  name: string;
+  from: string;
+  to: string;
+  savedAt: number; // timestamp
+  route: IndiaRoute;
+}
+
 const defaultSettings: AppSettings = {
   notifications: true,
   peakHourAlerts: true,
@@ -36,6 +45,7 @@ interface AppState {
   generatedRoutes: IndiaRoute[];
   settings: AppSettings;
   notificationCount: number;
+  savedRoutes: SavedRoute[];
 }
 
 interface AppContextType {
@@ -53,6 +63,9 @@ interface AppContextType {
   updateUser: (patch: Partial<User>) => void;
   updateSettings: (patch: Partial<AppSettings>) => void;
   clearNotificationCount: () => void;
+  saveRoute: (route: IndiaRoute, from: string, to: string) => void;
+  unsaveRoute: (id: string) => void;
+  isRouteSaved: (routeId: number) => boolean;
 }
 
 const defaultState: AppState = {
@@ -65,6 +78,7 @@ const defaultState: AppState = {
   generatedRoutes: [],
   settings: defaultSettings,
   notificationCount: 3,
+  savedRoutes: [],
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -75,19 +89,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const savedUser = localStorage.getItem('crowdsense_user');
       const savedSettings = localStorage.getItem('crowdsense_settings');
       const savedGuest = localStorage.getItem('crowdsense_guest');
+      const savedRoutes = localStorage.getItem('crowdsense_saved_routes');
       return {
         ...defaultState,
         user: savedUser ? JSON.parse(savedUser) : null,
         isGuest: savedGuest === 'true',
         settings: savedSettings ? { ...defaultSettings, ...JSON.parse(savedSettings) } : defaultSettings,
+        savedRoutes: savedRoutes ? JSON.parse(savedRoutes) : [],
       };
     } catch {
       return defaultState;
     }
   });
 
-  // ─── CRITICAL FIX: Apply dark class to <html> element ───────────────────────
-  // Tailwind's darkMode: 'class' requires the 'dark' class on <html>, not an inner div.
+  // ─── Dark mode on <html> ─────────────────────────────────────────────────────
   useEffect(() => {
     const root = document.documentElement;
     if (state.settings.darkMode) {
@@ -97,18 +112,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
   }, [state.settings.darkMode]);
 
-  // Initialize dark mode on mount from persisted preference
+  // Initialize dark mode from persisted on mount
   useEffect(() => {
-    const savedSettings = localStorage.getItem('crowdsense_settings');
-    if (savedSettings) {
-      const parsed = JSON.parse(savedSettings);
-      if (parsed.darkMode) {
-        document.documentElement.classList.add('dark');
+    try {
+      const savedSettings = localStorage.getItem('crowdsense_settings');
+      if (savedSettings) {
+        const parsed = JSON.parse(savedSettings);
+        if (parsed.darkMode) document.documentElement.classList.add('dark');
       }
-    }
+    } catch {}
   }, []);
 
-  // Persist user to localStorage
+  // Persist user
   useEffect(() => {
     if (state.user) {
       localStorage.setItem('crowdsense_user', JSON.stringify(state.user));
@@ -118,10 +133,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.setItem('crowdsense_guest', String(state.isGuest));
   }, [state.user, state.isGuest]);
 
-  // Persist settings to localStorage
+  // Persist settings
   useEffect(() => {
     localStorage.setItem('crowdsense_settings', JSON.stringify(state.settings));
   }, [state.settings]);
+
+  // Persist saved routes
+  useEffect(() => {
+    localStorage.setItem('crowdsense_saved_routes', JSON.stringify(state.savedRoutes));
+  }, [state.savedRoutes]);
 
   const setFromLocation = (loc: string) => setState(s => ({ ...s, fromLocation: loc }));
   const setToLocation = (loc: string) => setState(s => ({ ...s, toLocation: loc }));
@@ -134,6 +154,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const logout = () => {
     localStorage.removeItem('crowdsense_user');
     localStorage.removeItem('crowdsense_guest');
+    localStorage.removeItem('crowdsense_saved_routes');
     setState({ ...defaultState });
   };
 
@@ -149,8 +170,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const updateUser = (patch: Partial<User>) => {
     setState(s => {
       if (!s.user) return s;
-      const updated = { ...s.user, ...patch };
-      return { ...s, user: updated };
+      return { ...s, user: { ...s.user, ...patch } };
     });
   };
 
@@ -161,6 +181,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const clearNotificationCount = () => setState(s => ({ ...s, notificationCount: 0 }));
 
   const setGeneratedRoutes = (routes: IndiaRoute[]) => setState(s => ({ ...s, generatedRoutes: routes }));
+
+  // ─── Save / Unsave Route ─────────────────────────────────────────────────────
+  const saveRoute = (route: IndiaRoute, from: string, to: string) => {
+    const id = `saved-${route.id}`;
+    const newSaved: SavedRoute = {
+      id,
+      name: `${from} → ${to}`,
+      from,
+      to,
+      savedAt: Date.now(),
+      route,
+    };
+    setState(s => ({
+      ...s,
+      savedRoutes: [newSaved, ...s.savedRoutes.filter(r => r.id !== id)],
+    }));
+  };
+
+  const unsaveRoute = (id: string) => {
+    setState(s => ({ ...s, savedRoutes: s.savedRoutes.filter(r => r.id !== id) }));
+  };
+
+  const isRouteSaved = (routeId: number): boolean => {
+    return state.savedRoutes.some(r => r.id === `saved-${routeId}`);
+  };
 
   return (
     <AppContext.Provider value={{
@@ -178,6 +223,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       updateUser,
       updateSettings,
       clearNotificationCount,
+      saveRoute,
+      unsaveRoute,
+      isRouteSaved,
     }}>
       {children}
     </AppContext.Provider>
