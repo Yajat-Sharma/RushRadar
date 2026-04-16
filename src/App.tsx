@@ -13,6 +13,7 @@ import LoginScreen from './components/auth/LoginScreen';
 import SignupScreen from './components/auth/SignupScreen';
 import ForgotPasswordScreen from './components/auth/ForgotPasswordScreen';
 import BottomNavigation from './components/BottomNavigation';
+import Sidebar from './components/Sidebar';
 import { AppProvider, useAppContext } from './contexts/AppContext';
 import { ToastProvider } from './components/ui/Toast';
 
@@ -100,10 +101,17 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-200 dark:bg-gray-950 flex items-center justify-center transition-colors duration-300">
-      {/* Mobile Frame Simulation on Desktop */}
-      <div className="w-full max-w-sm h-[100dvh] sm:h-[844px] sm:rounded-[40px] sm:border-[8px] border-neutral-800 bg-white dark:bg-gray-900 relative overflow-hidden shadow-2xl flex flex-col transition-colors duration-300">
-        <div className="flex-1 overflow-y-auto relative no-scrollbar pb-24">
+    <div className="min-h-screen w-full bg-slate-200 dark:bg-gray-950 flex transition-colors duration-300">
+      {/* Desktop Sidebar (hidden on mobile) */}
+      <AnimatePresence>
+        {showBottomNav && (
+          <Sidebar currentScreen={currentScreen} onNavigate={handleScreenChange} />
+        )}
+      </AnimatePresence>
+
+      {/* Main Content Area */}
+      <div className="flex-1 bg-[#F5F7FA] dark:bg-gray-950 relative overflow-hidden flex flex-col transition-colors duration-300 w-full">
+        <div className="flex-1 overflow-y-auto relative no-scrollbar pb-24 md:pb-0 h-[100dvh]">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentScreen}
@@ -119,6 +127,7 @@ function AppContent() {
           </AnimatePresence>
         </div>
 
+        {/* Mobile Bottom Nav (hidden on desktop) */}
         <AnimatePresence>
           {showBottomNav && (
             <motion.div
@@ -126,7 +135,7 @@ function AppContent() {
               animate={{ y: 0 }}
               exit={{ y: 100 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="absolute bottom-0 left-0 right-0 z-50 pointer-events-none"
+              className="md:hidden absolute bottom-0 left-0 right-0 z-50 pointer-events-none"
             >
               <div className="pointer-events-auto">
                 <BottomNavigation
