@@ -101,7 +101,7 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-slate-200 dark:bg-gray-950 flex transition-colors duration-300">
+    <div className="h-[100dvh] w-full bg-slate-200 dark:bg-gray-950 flex transition-colors duration-300 overflow-hidden">
       {/* Desktop Sidebar (hidden on mobile) */}
       <AnimatePresence>
         {showBottomNav && (
@@ -110,8 +110,8 @@ function AppContent() {
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <div className="flex-1 bg-[#F5F7FA] dark:bg-gray-950 relative overflow-hidden flex flex-col transition-colors duration-300 w-full">
-        <div className="flex-1 overflow-y-auto relative no-scrollbar pb-24 md:pb-0 h-[100dvh]">
+      <div className="flex-1 bg-[#F5F7FA] dark:bg-gray-950 relative h-full flex flex-col transition-colors duration-300 w-full">
+        <div className="relative h-full w-full pb-0 md:pb-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentScreen}
@@ -120,7 +120,7 @@ function AppContent() {
               animate="animate"
               exit="exit"
               transition={pageTransition}
-              className="min-h-full"
+              className="h-full w-full flex flex-col"
             >
               {renderScreen()}
             </motion.div>
